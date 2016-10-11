@@ -17,61 +17,59 @@ public class NeuralNetwork {
     private ArrayList<Vector> b;
     private ArrayList<Matrix> JW;
     private ArrayList<Vector> Jb;
-    private ArrayList<Double> J;
 
 
 
     private double eps, lambda, mu, tau, beta, c;
 
     public void init (int numberOfLayers, int sizeOfLayers) {
-        J = new ArrayList<>();
         states = new TrainingStates();
         //set sixes for all arrayLists
     }
 
-    private void forwardPropagation () {
+    private void forwardPropagation (int t) {
         for (int i = 1; i < numberOfLayers; i++) {
-            states.setZ(0, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(0, i - 1)), b.get(i)));
-            states.setH(0, i, MyMath.applyTanh(states.getZ(0, i)));
-            states.setZ(1, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(1, i - 1)), b.get(i)));
-            states.setH(1, i, MyMath.applyTanh(states.getZ(0, i)));
+            states.setZ(0, t, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(0, t, i - 1)), b.get(i)));
+            states.setH(0, t, i, MyMath.applyTanh(states.getZ(0, t, i)));
+            states.setZ(1, t, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(1, t, i - 1)), b.get(i)));
+            states.setH(1, t, i, MyMath.applyTanh(states.getZ(0, t, i)));
         }
     }
 
     public void trainNetwork () {
         DataSet x = new DataSet();
-        int N = 0;
-        for (int i = 0; i < x.getSize(); i++) {
-            for (int j = 0; j < 1; j++) {
-                for (int t = 0; t < iterativeNumber; t++) {
-                    states.setH(0, 0, x.getXi());
-                    states.setH(1, 0, x.getXj());
-                    double lij = x.getLij();
-                    forwardPropagation();
-                    // Computing gradient
-                    c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, numberOfLayers - 1), states.getH(1, numberOfLayers - 1)));
-                    double gdc = c; //g'(c)
-                    states.setDelta(0, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
-                                    MyMath.subtractionVV(states.getH(0, numberOfLayers - 1), states.getH(1, numberOfLayers - 1))),
-                            MyMath.applyTanhDerivative(states.getZ(0, numberOfLayers - 1))));
-                    states.setDelta(1, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
-                                    MyMath.subtractionVV(states.getH(1, numberOfLayers - 1), states.getH(0, numberOfLayers - 1))),
-                            MyMath.applyTanhDerivative(states.getZ(1, numberOfLayers - 1))));
-                    for (int cur = numberOfLayers - 2; cur > 0; cur--) {
-                        // set delta1[i] and delta2[i]
-                    }
-                    for (int cur = 1; cur < numberOfLayers; cur++) {
-                        //Set JW and Jb
-                    }
-                    for (int cur = 1; cur < numberOfLayers; cur++) {
-                        w.set(cur, MyMath.subtractionMM(w.get(cur), MyMath.multiplyDM(mu, JW.get(cur))));
-                        b.set(cur, MyMath.subtractionVV(b.get(cur), MyMath.multiplyDV(mu, Jb.get(cur))));
-                    }
-                    J.add(0.0);
-                    if (t > 0 && Math.abs(J.get(t - 1) - J.get(t)) < eps) {
-                        break;
-                    }
+        for (int t = 0; t < iterativeNumber; t++) {
+            states.setH(0, t, 0, x.getXi(t));
+            states.setH(1, t, 0, x.getXj(t));
+            double lij = x.getLij(t);
+            forwardPropagation(t);
+            // Computing gradient
+            c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
+            double gdc = c; //g'(c)
+            states.setDelta(0, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
+                            MyMath.subtractionVV(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1))),
+                            MyMath.applyTanhDerivative(states.getZ(0, t, numberOfLayers - 1))));
+            states.setDelta(1, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
+                                    MyMath.subtractionVV(states.getH(1, t, numberOfLayers - 1), states.getH(0, t, numberOfLayers - 1))),
+                            MyMath.applyTanhDerivative(states.getZ(1, t, numberOfLayers - 1))));
+            for (int cur = numberOfLayers - 2; cur > 0; cur--) {
+                // set delta1[i] and delta2[i]
+            }
+            for (int cur = 1; cur < numberOfLayers; cur++) {
+                JW.set(cur, MyMath.multiplyDM(lambda, w.get(cur)));
+                Jb.set(cur, MyMath.multiplyDV(lambda, b.get(cur)));
+                for (int i = 0; i <= t; i++) {
+                    JW.set(cur, MyMath.additionMM(JW.get(cur), MyMath.multiplyVV(states.getDelta(0, t, cur), MyMath.transposeV(states.getH(0, i, cur - 1)))));
+                    Jb.set(cur, MyMath.additionVV(Jb.get(cur), MyMath.additionVV(states.getDelta(0, t, cur), states.getDelta(1, t, cur))));
                 }
+            }
+            for (int cur = 1; cur < numberOfLayers; cur++) {
+                w.set(cur, MyMath.subtractionMM(w.get(cur), MyMath.multiplyDM(mu, JW.get(cur))));
+                b.set(cur, MyMath.subtractionVV(b.get(cur), MyMath.multiplyDV(mu, Jb.get(cur))));
+            }
+            states.addJ(0.0);
+            if (t > 0 && Math.abs(states.getJ(t - 1) - states.getJ(t)) < eps) {
+                break;
             }
         }
     }

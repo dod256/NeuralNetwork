@@ -148,7 +148,7 @@ public class MyMath {
         return ans;
     }
 
-    public static Matrix TransposeM (Matrix a) {
+    public static Matrix transposeM (Matrix a) {
         ArrayList<ArrayList<Double>> ans = new ArrayList<>();
 
         for (int i = 0; i < a.getM(); i++) {
@@ -159,6 +159,10 @@ public class MyMath {
         }
 
         return new Matrix(ans);
+    }
+
+    public static Vector transposeV (Vector v) {
+        return new Vector(v.getValues(), !v.isTranspose());
     }
 
 }

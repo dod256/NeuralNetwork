@@ -11,15 +11,15 @@ public class DataSet {
         return size;
     }
 
-    public Vector getXi () {
+    public Vector getXi (int t) {
         return null;
     }
 
-    public Vector getXj () {
+    public Vector getXj (int t) {
         return null;
     }
 
-    public double getLij () {
+    public double getLij (int t) {
         return 0;
     }
 }
