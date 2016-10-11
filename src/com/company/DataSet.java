@@ -1,8 +1,5 @@
 package com.company;
 
-/**
- * Created by dkorotee on 10.10.2016.
- */
 public class DataSet {
 
     private int size;

@@ -1,37 +1,37 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by David on 10/9/2016.
- */
 public class Vector {
 
     private int size;
-    private ArrayList<Double> values;
+    private List<Double> values;
+
+    //if isTranspose == false then vector is column
     private boolean isTranspose;
 
     public int getSize() {
         return size;
     }
 
-    public ArrayList<Double> getValues() {
+    public List<Double> getValues() {
         return values;
     }
 
-    Vector () {
+    public Vector () {
         size = 0;
         values = new ArrayList<>();
         isTranspose = false;
     }
 
-    Vector (ArrayList<Double> values, boolean isTranspose) {
+    public Vector (List<Double> values, boolean isTranspose) {
         this.values = values;
         size = values.size();
         this.isTranspose = isTranspose;
     }
 
-    Vector (ArrayList<Double> values) {
+    public Vector (List<Double> values) {
         this.values = values;
         size = values.size();
         this.isTranspose = false;
@@ -46,5 +46,35 @@ public class Vector {
             return 0;
         }
         return values.get(i);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vector)) return false;
+
+        Vector vector = (Vector) o;
+
+        if (getSize() != vector.getSize()) return false;
+        if (isTranspose() != vector.isTranspose()) return false;
+        return getValues().equals(vector.getValues());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getSize();
+        result = 31 * result + getValues().hashCode();
+        result = 31 * result + (isTranspose() ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Vector{" +
+                "size=" + size +
+                ", values=" + values +
+                ", isTranspose=" + isTranspose +
+                '}';
     }
 }

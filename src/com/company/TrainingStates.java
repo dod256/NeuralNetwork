@@ -2,9 +2,6 @@ package com.company;
 
 import java.util.ArrayList;
 
-/**
- * Created by David on 10/11/2016.
- */
 public class TrainingStates {
 
     private ArrayList<ArrayList<ArrayList<Vector>>> h;

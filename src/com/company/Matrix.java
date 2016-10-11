@@ -1,14 +1,12 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by David on 10/9/2016.
- */
 public class Matrix {
 
     int n, m; //n rows, m columns
-    private ArrayList<ArrayList<Double>> values;
+    private List<List<Double>> values;
 
     public int getN() {
         return n;
@@ -18,14 +16,14 @@ public class Matrix {
         return m;
     }
 
-    public ArrayList<ArrayList<Double>> getValues() {
+    public List<List<Double>> getValues() {
         return values;
     }
 
     public Matrix() {
     }
 
-    public Matrix(ArrayList<ArrayList<Double>> values) {
+    public Matrix(List<List<Double>> values) {
         this.values = values;
         n = values.size();
         if (n == 0) {
@@ -40,5 +38,35 @@ public class Matrix {
             return 0;
         }
         return values.get(i).get(j);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Matrix)) return false;
+
+        Matrix matrix = (Matrix) o;
+
+        if (getN() != matrix.getN()) return false;
+        if (getM() != matrix.getM()) return false;
+        return getValues().equals(matrix.getValues());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getN();
+        result = 31 * result + getM();
+        result = 31 * result + getValues().hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Matrix{" +
+                "n=" + n +
+                ", m=" + m +
+                ", values=" + values +
+                '}';
     }
 }

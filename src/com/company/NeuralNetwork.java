@@ -2,9 +2,6 @@ package com.company;
 
 import java.util.ArrayList;
 
-/**
- * Created by David on 10/9/2016.
- */
 public class NeuralNetwork {
 
     public int numberOfLayers;

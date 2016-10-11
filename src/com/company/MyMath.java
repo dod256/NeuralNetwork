@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyMath {
 
@@ -8,7 +9,7 @@ public class MyMath {
         if (m.getM() != v.getSize()) {
             return null;
         }
-        ArrayList<Double> ans = new ArrayList<>();
+        List<Double> ans = new ArrayList<>();
 
         for (int i = 0; i < m.getN(); i++) {
             double cur = 0;
@@ -25,7 +26,7 @@ public class MyMath {
         if (a.getSize() != b.getSize() || a.isTranspose() || !b.isTranspose()) {
             return null;
         }
-        ArrayList<ArrayList<Double>> ans = new ArrayList<>();
+        List<List<Double>> ans = new ArrayList<>();
 
         for (int i = 0; i < a.getSize(); i++) {
             ans.add(new ArrayList<>());
@@ -38,7 +39,7 @@ public class MyMath {
     }
 
     public static Matrix multiplyDM (double d, Matrix m) {
-        ArrayList<ArrayList<Double>> ans = new ArrayList<>();
+        List<List<Double>> ans = new ArrayList<>();
         for (int i = 0; i < m.getN(); i++) {
             ans.add(new ArrayList<>());
             for (int j = 0; j < m.getM(); j++) {
@@ -52,7 +53,7 @@ public class MyMath {
         if (a.getN() != b.getN() || a.getM() != b.getM()) {
             return null;
         }
-        ArrayList<ArrayList<Double>> ans = new ArrayList<>();
+        List<List<Double>> ans = new ArrayList<>();
         for (int i = 0; i < a.getN(); i++) {
             ans.add(new ArrayList<>());
             for (int j = 0; j < a.getM(); j++) {
@@ -66,7 +67,7 @@ public class MyMath {
         if (a.getN() != b.getN() || a.getM() != b.getM()) {
             return null;
         }
-        ArrayList<ArrayList<Double>> ans = new ArrayList<>();
+        List<List<Double>> ans = new ArrayList<>();
         for (int i = 0; i < a.getN(); i++) {
             ans.add(new ArrayList<>());
             for (int j = 0; j < a.getM(); j++) {
@@ -113,12 +114,15 @@ public class MyMath {
     }
 
     public static Vector multiplyElementWiseVV (Vector a, Vector b) {
-        if (a.getSize() != b.getSize()) {
+        if ((a.getSize() != b.getSize()) || (a.isTranspose() != b.isTranspose())) {
             return null;
         }
         ArrayList<Double> ans = new ArrayList<>();
         for (int i = 0; i < a.getSize(); i++) {
             ans.add(a.getValue(i) * b.getValue(i));
+        }
+        if (a.isTranspose()) {
+            return new Vector(ans, true);
         }
         return new Vector(ans);
     }
@@ -149,7 +153,7 @@ public class MyMath {
     }
 
     public static Matrix transposeM (Matrix a) {
-        ArrayList<ArrayList<Double>> ans = new ArrayList<>();
+        List<List<Double>> ans = new ArrayList<>();
 
         for (int i = 0; i < a.getM(); i++) {
             ans.add(new ArrayList<>());
