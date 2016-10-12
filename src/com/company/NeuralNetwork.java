@@ -38,18 +38,24 @@ public class NeuralNetwork {
                 for (int j = 0; j < sizeOfLayers.get(i); j++) {
                     values.add(new ArrayList<>());
                     for (int k = 0; k < sizeOfLayers.get(i - 1); k++) {
-                        values.get(i).add(rand.nextDouble() % 10);
+                        values.get(j).add(rand.nextDouble() % 10);
                     }
                 }
                 w.add(new Matrix(values)); //Change to uniform distribution
+            } else {
+                w.add(new Matrix());
             }
         }
 
-        JW = new ArrayList<>(iterativeNumber);
-        Jb = new ArrayList<>(iterativeNumber);
+        JW = new ArrayList<>();
+        Jb = new ArrayList<>();
+        for (int i = 0; i < iterativeNumber; i++) {
+            JW.add(new Matrix());
+            Jb.add(new Vector());
+        }
 
-        states = new TrainingStates();
-        x = new DataSet();
+        states = new TrainingStates(numberOfLayers, sizeOfLayers, iterativeNumber);
+        x = new DataSet(10, sizeOfLayers.get(0));
 
         eps = 0.001;
         lambda = 1;

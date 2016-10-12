@@ -23,7 +23,7 @@ public class MyMath {
     }
 
     public static Matrix multiplyVV (Vector a, Vector b) {
-        if (a.getSize() != b.getSize() || a.isTranspose() || !b.isTranspose()) {
+        if (a.isTranspose() || !b.isTranspose()) {
             return null;
         }
         List<List<Double>> ans = new ArrayList<>();
