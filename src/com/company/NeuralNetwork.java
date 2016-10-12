@@ -50,14 +50,18 @@ public class NeuralNetwork {
                                     MyMath.subtractionVV(states.getH(1, t, numberOfLayers - 1), states.getH(0, t, numberOfLayers - 1))),
                             MyMath.applyTanhDerivative(states.getZ(1, t, numberOfLayers - 1))));
             for (int cur = numberOfLayers - 2; cur > 0; cur--) {
-                // set delta1[i] and delta2[i]
+                states.setDelta(0, t, cur, MyMath.multiplyElementWiseVV(MyMath.multiplyMV(MyMath.transposeM(w.get(cur + 1)),
+                        states.getDelta(0, t, cur + 1)), states.getZ(0, t, cur)));
+                states.setDelta(1, t, cur, MyMath.multiplyElementWiseVV(MyMath.multiplyMV(MyMath.transposeM(w.get(cur + 1)),
+                        states.getDelta(1, t, cur + 1)), states.getZ(1, t, cur)));
             }
             for (int cur = 1; cur < numberOfLayers; cur++) {
                 JW.set(cur, MyMath.multiplyDM(lambda, w.get(cur)));
                 Jb.set(cur, MyMath.multiplyDV(lambda, b.get(cur)));
                 for (int i = 0; i <= t; i++) {
-                    JW.set(cur, MyMath.additionMM(JW.get(cur), MyMath.multiplyVV(states.getDelta(0, t, cur), MyMath.transposeV(states.getH(0, i, cur - 1)))));
-                    Jb.set(cur, MyMath.additionVV(Jb.get(cur), MyMath.additionVV(states.getDelta(0, t, cur), states.getDelta(1, t, cur))));
+                    JW.set(cur, MyMath.additionMM(JW.get(cur), MyMath.multiplyVV(states.getDelta(0, i, cur), MyMath.transposeV(states.getH(0, i, cur - 1)))));
+                    JW.set(cur, MyMath.additionMM(JW.get(cur), MyMath.multiplyVV(states.getDelta(1, i, cur), MyMath.transposeV(states.getH(1, i, cur - 1)))));
+                    Jb.set(cur, MyMath.additionVV(Jb.get(cur), MyMath.additionVV(states.getDelta(0, i, cur), states.getDelta(1, i, cur))));
                 }
             }
             for (int cur = 1; cur < numberOfLayers; cur++) {
