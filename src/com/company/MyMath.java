@@ -144,6 +144,14 @@ public class MyMath {
         return new Vector(ans);
     }
 
+    public static double VectorNorm (Vector a) { //ToDo Is that a right termin??
+        double ans = 0;
+        for(int i = 0; i < a.getSize(); i++) {
+            ans += a.getValue(i) * a.getValue(i);
+        }
+        return ans;
+    }
+
     public static double squaredEuclideanDistance (Vector a, Vector b) {
         double ans = 0;
         for(int i = 0; i < a.getSize(); i++) {
@@ -167,6 +175,16 @@ public class MyMath {
 
     public static Vector transposeV (Vector v) {
         return new Vector(v.getValues(), !v.isTranspose());
+    }
+
+    public static double FrobeniusNorm (Matrix a) {
+        int ans = 0;
+        for (int i = 0; i < a.getN(); i++) {
+            for (int j = 0; j < a.getM(); j++) {
+                ans += a.getValue(i, j) * a.getValue(i, j);
+            }
+        }
+        return Math.sqrt(ans);
     }
 
 }

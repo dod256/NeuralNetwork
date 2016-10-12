@@ -21,6 +21,7 @@ public class NeuralNetwork {
 
     public void init (int numberOfLayers, int sizeOfLayers) {
         states = new TrainingStates();
+        J = 0;
         //set sixes for all arrayLists
     }
 
@@ -33,6 +34,16 @@ public class NeuralNetwork {
         }
     }
 
+    private double g (double z) {
+        return (1.0 / beta) * Math.log(1 + Math.exp(beta * z));
+    }
+
+    private double gDerivative (double z) {
+        double exp = Math.exp(beta * z);
+        return exp / (1 + exp);
+    }
+
+
     public void trainNetwork () {
         DataSet x = new DataSet();
         for (int t = 0; t < iterativeNumber; t++) {
@@ -42,7 +53,7 @@ public class NeuralNetwork {
             forwardPropagation(t);
             // Computing gradient
             c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
-            double gdc = c; //g'(c)
+            double gdc = gDerivative(c);
             states.setDelta(0, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
                             MyMath.subtractionVV(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1))),
                             MyMath.applyTanhDerivative(states.getZ(0, t, numberOfLayers - 1))));
@@ -68,7 +79,15 @@ public class NeuralNetwork {
                 w.set(cur, MyMath.subtractionMM(w.get(cur), MyMath.multiplyDM(mu, JW.get(cur))));
                 b.set(cur, MyMath.subtractionVV(b.get(cur), MyMath.multiplyDV(mu, Jb.get(cur))));
             }
-            states.addJ(0.0);
+
+            double J = 0;
+            for (int i = 0; i <= t; i++) {
+                J += 0.5 * g(1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, i, numberOfLayers - 1), states.getH(1, i, numberOfLayers - 1))));
+            }
+            for (int i = 1; i < numberOfLayers; i++) {
+                J += 0.5 * lambda * (MyMath.FrobeniusNorm(w.get(i)) + MyMath.VectorNorm(b.get(i)));
+            }
+            states.addJ(J);
             if (t > 0 && Math.abs(states.getJ(t - 1) - states.getJ(t)) < eps) {
                 break;
             }
