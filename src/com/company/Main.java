@@ -2,14 +2,20 @@ package com.company;
 import java.io.*;
 import java.util.*;
 
-public class Main implements Runnable{
+public class Main {//implements Runnable{
 
     BufferedReader br;
     StringTokenizer st;
     boolean eof;
-
+/*
     public static void main(String[] args) {
         new Thread(new Main()).start();
+    }
+*/
+
+    public static void main(String[] args) {
+        NeuralNetwork net = new NeuralNetwork();
+        net.trainNetwork();
     }
 
     String nextToken()
@@ -29,8 +35,10 @@ public class Main implements Runnable{
         return Integer.parseInt(nextToken());
     }
 
+    /*
     void main () {
-
+        NeuralNetwork net = new NeuralNetwork();
+        net.trainNetwork();
     }
 
     @Override
@@ -38,5 +46,5 @@ public class Main implements Runnable{
         br = new BufferedReader(new InputStreamReader(System.in));
         main();
     }
-
+    */
 }

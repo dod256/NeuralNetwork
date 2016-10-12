@@ -1,28 +1,62 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class NeuralNetwork {
 
     public int numberOfLayers;
-    public ArrayList<Integer> sizeOfLayers;
+    public List<Integer> sizeOfLayers;
     private int iterativeNumber;
 
     private TrainingStates states;
+    private DataSet x;
     
-    private ArrayList<Matrix> w;
-    private ArrayList<Vector> b;
-    private ArrayList<Matrix> JW;
-    private ArrayList<Vector> Jb;
-
-
+    private List<Matrix> w;
+    private List<Vector> b;
+    private List<Matrix> JW;
+    private List<Vector> Jb;
 
     private double eps, lambda, mu, tau, beta, c;
 
-    public void init (int numberOfLayers, int sizeOfLayers) {
+    public void init () {
+        Random rand = new Random();
+        numberOfLayers = 3;
+        sizeOfLayers = new ArrayList<>();
+        sizeOfLayers.add(5);
+        sizeOfLayers.add(3);
+        sizeOfLayers.add(6);
+        iterativeNumber = 1000;
+
+        w = new ArrayList<>();
+        b = new ArrayList<>();
+        for (int i = 0; i < numberOfLayers; i++) {
+            b.add(new Vector(sizeOfLayers.get(i)));
+            if (i > 0) {
+                List<List<Double>> values = new ArrayList<>();
+                for (int j = 0; j < sizeOfLayers.get(i); j++) {
+                    values.add(new ArrayList<>());
+                    for (int k = 0; k < sizeOfLayers.get(i - 1); k++) {
+                        values.get(i).add(rand.nextDouble() % 10);
+                    }
+                }
+                w.add(new Matrix(values)); //Change to uniform distribution
+            }
+        }
+
+        JW = new ArrayList<>(iterativeNumber);
+        Jb = new ArrayList<>(iterativeNumber);
+
         states = new TrainingStates();
-        J = 0;
-        //set sixes for all arrayLists
+        x = new DataSet();
+
+        eps = 0.001;
+        lambda = 1;
+        mu = 1;
+        tau = 1;
+        beta = 1;
+
     }
 
     private void forwardPropagation (int t) {
@@ -45,7 +79,7 @@ public class NeuralNetwork {
 
 
     public void trainNetwork () {
-        DataSet x = new DataSet();
+        init();
         for (int t = 0; t < iterativeNumber; t++) {
             states.setH(0, t, 0, x.getXi(t));
             states.setH(1, t, 0, x.getXj(t));

@@ -21,6 +21,18 @@ public class Matrix {
     }
 
     public Matrix() {
+        n = 0;
+        m = 0;
+        values = new ArrayList<>();
+    }
+
+    public Matrix(int n, int m) {
+        this.n = n;
+        this.m = m;
+        values = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            values.add(new ArrayList<>(m));
+        }
     }
 
     public Matrix(List<List<Double>> values) {

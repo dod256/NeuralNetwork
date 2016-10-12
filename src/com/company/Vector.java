@@ -25,6 +25,12 @@ public class Vector {
         isTranspose = false;
     }
 
+    public Vector (int size) {
+        this.size = size;
+        values = new ArrayList<>(size);
+        isTranspose = false;
+    }
+
     public Vector (List<Double> values, boolean isTranspose) {
         this.values = values;
         size = values.size();
