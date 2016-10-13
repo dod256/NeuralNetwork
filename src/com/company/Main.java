@@ -2,16 +2,11 @@ package com.company;
 import java.io.*;
 import java.util.*;
 
-public class Main {//implements Runnable{
+public class Main {
 
     BufferedReader br;
     StringTokenizer st;
     boolean eof;
-/*
-    public static void main(String[] args) {
-        new Thread(new Main()).start();
-    }
-*/
 
     public static void main(String[] args) {
         NeuralNetwork net = new NeuralNetwork();
@@ -35,16 +30,4 @@ public class Main {//implements Runnable{
         return Integer.parseInt(nextToken());
     }
 
-    /*
-    void main () {
-        NeuralNetwork net = new NeuralNetwork();
-        net.trainNetwork();
-    }
-
-    @Override
-    public void run() {
-        br = new BufferedReader(new InputStreamReader(System.in));
-        main();
-    }
-    */
 }
