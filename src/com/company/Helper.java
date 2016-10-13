@@ -19,7 +19,7 @@ public class Helper {
 
     public static Vector mutate(Vector oldVector) {
         if (Math.random() < 0.1) {
-            int ind = intRandom.nextInt() % (oldVector.getSize() - 1);
+            int ind = Math.abs(intRandom.nextInt()) % oldVector.getSize();
             List<Double> list = oldVector.getValues();
             list.set(ind, list.get(ind) + 20);
             return new Vector(list);

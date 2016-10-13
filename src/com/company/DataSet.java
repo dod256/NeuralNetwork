@@ -22,22 +22,23 @@ public class DataSet {
         xj = new ArrayList<>();
         lij = new ArrayList<>();
 
-        xi.add(Helper.getRandVector(numberOfData));
-        xj.add(xj.get(0));
+        xi.add(Helper.getRandVector(inputSize));
+        xj.add(xi.get(0));
         lij.add(1.0);
+        Vector mean = new Vector(inputSize);
         for (int i = 1; i < numberOfData; i++) {
-            Vector newRandVector = Helper.getRandVector(numberOfData);
+            Vector newRandVector = Helper.getRandVector(inputSize);
 
             Vector mutatatedNewRandVector = mutate(newRandVector);
 
-            Vector oldMean = xj.get(i - 1);
-            List<Double> newMean = new ArrayList<>();
-            for (int j = 0; j < oldMean.getSize(); j++) {
-                newMean.add((oldMean.getValue(j)*(i-1) + mutatatedNewRandVector.getValue(j))/i);
-            }
+            mean = MyMath.multiplyDV(i - 1, mean);
+            mean = MyMath.additionVV(mean, mutatatedNewRandVector);
+            mean = MyMath.multiplyDV(1.0 / i, mean);
+
+            mean = Helper.getRandVector(inputSize);
 
             xi.add(mutatatedNewRandVector);
-            xj.add(new Vector(newMean));
+            xj.add(mean);
             if (mutatatedNewRandVector.equals(newRandVector)) {
                 lij.add(1.0);
             } else {

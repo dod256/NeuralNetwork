@@ -31,7 +31,6 @@ public class TrainingStates {
         delta.add(new ArrayList<>());
         J = new ArrayList<>();
         for (int i = 0; i < iterativeNumber; i++) {
-            J.add(0.0);
             h.get(0).add(new ArrayList<>());
             h.get(1).add(new ArrayList<>());
             z.get(0).add(new ArrayList<>());

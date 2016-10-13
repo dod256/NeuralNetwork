@@ -27,7 +27,7 @@ public class NeuralNetwork {
         sizeOfLayers.add(5);
         sizeOfLayers.add(3);
         sizeOfLayers.add(6);
-        iterativeNumber = 1000;
+        iterativeNumber = 10;
 
         w = new ArrayList<>();
         b = new ArrayList<>();
@@ -49,18 +49,20 @@ public class NeuralNetwork {
 
         JW = new ArrayList<>();
         Jb = new ArrayList<>();
-        for (int i = 0; i < iterativeNumber; i++) {
-            JW.add(new Matrix());
-            Jb.add(new Vector());
+        JW.add(new Matrix());
+        Jb.add(new Vector());
+        for (int i = 1; i < numberOfLayers; i++) {
+            JW.add(new Matrix(sizeOfLayers.get(i), sizeOfLayers.get(i - 1)));
+            Jb.add(new Vector(sizeOfLayers.get(i)));
         }
 
         states = new TrainingStates(numberOfLayers, sizeOfLayers, iterativeNumber);
-        x = new DataSet(10, sizeOfLayers.get(0));
+        x = new DataSet(iterativeNumber, sizeOfLayers.get(0));
 
         eps = 0.001;
-        lambda = 1;
+        lambda = 0.8;
         mu = 1;
-        tau = 1;
+        tau = 0.1;
         beta = 1;
 
     }
@@ -70,7 +72,7 @@ public class NeuralNetwork {
             states.setZ(0, t, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(0, t, i - 1)), b.get(i)));
             states.setH(0, t, i, MyMath.applyTanh(states.getZ(0, t, i)));
             states.setZ(1, t, i, MyMath.additionVV(MyMath.multiplyMV(w.get(i), states.getH(1, t, i - 1)), b.get(i)));
-            states.setH(1, t, i, MyMath.applyTanh(states.getZ(0, t, i)));
+            states.setH(1, t, i, MyMath.applyTanh(states.getZ(1, t, i)));
         }
     }
 
@@ -91,7 +93,43 @@ public class NeuralNetwork {
             states.setH(1, t, 0, x.getXj(t));
             double lij = x.getLij(t);
             forwardPropagation(t);
+            System.out.println("Time: " + t);
+//            /*
+            for (int i = 1; i < numberOfLayers; i++) {
+                System.out.println("Layer:" + i);
+                for (int j = 0; j < w.get(i).getN(); j++) {
+                    for (int k = 0; k < w.get(i).getM(); k++) {
+                        System.out.print(String.format("%.2f ", w.get(i).getValue(j, k)));
+                    }
+                    System.out.println(String.format("   %.2f", b.get(i).getValue(j)));
+                }
+            }
+//            */
             // Computing gradient
+            System.out.println("x1: ");
+            Vector curv = states.getH(0, t, 0);
+            for (int j = 0; j < curv.getSize(); j++) {
+                System.out.print(String.format("%.2f ", curv.getValue(j)));
+            }
+            System.out.println("");
+            System.out.println("x2: ");
+            curv = states.getH(1, t, 0);
+            for (int j = 0; j < curv.getSize(); j++) {
+                System.out.print(String.format("%.2f ", curv.getValue(j)));
+            }
+            System.out.println("");
+            System.out.println("h1: ");
+            curv = states.getH(0, t, numberOfLayers - 1);
+            for (int j = 0; j < curv.getSize(); j++) {
+                System.out.print(String.format("%.2f ", curv.getValue(j)));
+            }
+            System.out.println("");
+            System.out.println("h2: ");
+            curv = states.getH(1, t, numberOfLayers - 1);
+            for (int j = 0; j < curv.getSize(); j++) {
+                System.out.print(String.format("%.2f ", curv.getValue(j)));
+            }
+            System.out.println("");
             c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
             double gdc = gDerivative(c);
             states.setDelta(0, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
