@@ -1,13 +1,17 @@
 package com.company;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 public class NeuralNetwork {
 
-    public int numberOfLayers;
-    public List<Integer> sizeOfLayers;
+    private final String LOG_LEVEL = "DEBUG";
+
+    private int numberOfLayers;
+    private List<Integer> sizeOfLayers;
     private int iterativeNumber;
 
     private TrainingStates states;
@@ -20,14 +24,18 @@ public class NeuralNetwork {
 
     private double eps, lambda, mu, tau, beta, c;
 
-    public void init () {
+    public void init () throws IOException {
         Random rand = new Random();
+        iterativeNumber = 500;
+
+        x = new DataSet();
+        x.initFromFile();
+
         numberOfLayers = 3;
         sizeOfLayers = new ArrayList<>();
+        sizeOfLayers.add(x.getInputSize());
         sizeOfLayers.add(5);
-        sizeOfLayers.add(3);
-        sizeOfLayers.add(6);
-        iterativeNumber = 10;
+        sizeOfLayers.add(x.getInputSize());
 
         w = new ArrayList<>();
         b = new ArrayList<>();
@@ -38,7 +46,7 @@ public class NeuralNetwork {
                 for (int j = 0; j < sizeOfLayers.get(i); j++) {
                     values.add(new ArrayList<>());
                     for (int k = 0; k < sizeOfLayers.get(i - 1); k++) {
-                        values.get(j).add(rand.nextDouble() % 10);
+                        values.get(j).add(rand.nextDouble() * 100);
                     }
                 }
                 w.add(new Matrix(values)); //Change to uniform distribution
@@ -57,12 +65,11 @@ public class NeuralNetwork {
         }
 
         states = new TrainingStates(numberOfLayers, sizeOfLayers, iterativeNumber);
-        x = new DataSet(iterativeNumber, sizeOfLayers.get(0));
 
         eps = 0.001;
-        lambda = 0.8;
+        lambda = 0.2;
         mu = 1;
-        tau = 0.1;
+        tau = 1.1;
         beta = 1;
 
     }
@@ -76,6 +83,27 @@ public class NeuralNetwork {
         }
     }
 
+    public boolean test (Vector v1, Vector v2) {
+        if ("DEBUG".equals(LOG_LEVEL)) {
+            Writer.printVector(v1);
+            Writer.printVector(v2);
+        }
+        for(int i = 1; i < numberOfLayers; i++) {
+            v1 = MyMath.applyTanh(MyMath.additionVV(MyMath.multiplyMV(w.get(i), v1), b.get(i)));
+            v2 = MyMath.applyTanh(MyMath.additionVV(MyMath.multiplyMV(w.get(i), v2), b.get(i)));
+        }
+        if ("DEBUG".equals(LOG_LEVEL)) {
+            Writer.printVector(v1);
+            Writer.printVector(v2);
+            System.out.println(MyMath.squaredEuclideanDistance(v1, v2));
+        }
+        if (tau > MyMath.squaredEuclideanDistance(v1, v2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private double g (double z) {
         return (1.0 / beta) * Math.log(1 + Math.exp(beta * z));
     }
@@ -85,27 +113,96 @@ public class NeuralNetwork {
         return exp / (1 + exp);
     }
 
+    public void saveNetwork () throws FileNotFoundException {
+        PrintWriter out = new PrintWriter(new File("net.txt"));
+        out.println("Eps: " + eps);
+        out.println("Lambda: " + lambda);
+        out.println("Mu: " + mu);
+        out.println("Tau: " + tau);
+        out.println("Beta: " + beta);
+        out.println("NumberOfLayers: " + numberOfLayers);
+        for (int i = 0; i < numberOfLayers; i++) {
+            out.println("SizeOfLayerNumber " + i + ": " + sizeOfLayers.get(i));
+        }
+        for (int i = 1; i < numberOfLayers; i++) {
+            out.println("Layer " + i + ": " + w.get(i).getN() + " " + w.get(i).getM());
+            for (int j = 0; j < w.get(i).getN(); j++) {
+                for (int k = 0; k < w.get(i).getM(); k++) {
+                    out.print(String.format("%.2f ", w.get(i).getValue(j, k)));
+                }
+                out.println(String.format("   %.2f", b.get(i).getValue(j)));
+            }
+        }
+        out.close();
+    }
 
-    public void trainNetwork () {
-        init();
-        for (int t = 0; t < iterativeNumber; t++) {
-            states.setH(0, t, 0, x.getXi(t));
-            states.setH(1, t, 0, x.getXj(t));
-            double lij = x.getLij(t);
-            forwardPropagation(t);
-            System.out.println("Time: " + t);
-//            /*
-            for (int i = 1; i < numberOfLayers; i++) {
-                System.out.println("Layer:" + i);
-                for (int j = 0; j < w.get(i).getN(); j++) {
+    public void restoreNetFromFile () throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(new File("net.txt")));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        eps = Double.parseDouble(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        lambda = Double.parseDouble(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        mu = Double.parseDouble(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        tau = Double.parseDouble(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        beta = Double.parseDouble(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        numberOfLayers = Integer.parseInt(st.nextToken());
+        sizeOfLayers = new ArrayList<>();
+        for (int i = 0; i < numberOfLayers; i++) {
+            st = new StringTokenizer(br.readLine());
+            st.nextToken();
+            st.nextToken();
+            sizeOfLayers.add(Integer.parseInt(st.nextToken()));
+        }
+        w = new ArrayList<>();
+        w.add(new Matrix());
+        b = new ArrayList<>();
+        b.add(new Vector());
+        for (int i = 1; i < numberOfLayers; i++) {
+            List<List<Double>> values = new ArrayList<>();
+            List<Double> newB = new ArrayList<>();
+            st = new StringTokenizer(br.readLine());
+            st.nextToken();
+            st.nextToken();
+            int n = Integer.parseInt(st.nextToken());
+            int m = Integer.parseInt(st.nextToken());
+            for (int j = 0; j < n; j++) {
+                st = new StringTokenizer(br.readLine());
+                values.add(new ArrayList<>());
+                for (int k = 0; k < m; k++) {
+                    values.get(j).add(Double.parseDouble(st.nextToken()));
+                }
+                newB.add(Double.parseDouble(st.nextToken()));
+            }
+            w.add(new Matrix(values));
+            b.add(new Vector(newB));
+        }
+    }
+
+    public void printNetwork (int t) {
+        if (t == -1) {
+//            t = x.getNumberOfData() - 1;
+        }
+        System.out.println("Time: " + (t + 1));
+        for (int i = 1; i < numberOfLayers; i++) {
+            System.out.println("Layer:" + i);
+            for (int j = 0; j < w.get(i).getN(); j++) {
                     for (int k = 0; k < w.get(i).getM(); k++) {
-                        System.out.print(String.format("%.2f ", w.get(i).getValue(j, k)));
+                    System.out.print(String.format("%.2f ", w.get(i).getValue(j, k)));
                     }
                     System.out.println(String.format("   %.2f", b.get(i).getValue(j)));
                 }
             }
-//            */
-            // Computing gradient
+/*
             System.out.println("x1: ");
             Vector curv = states.getH(0, t, 0);
             for (int j = 0; j < curv.getSize(); j++) {
@@ -130,6 +227,20 @@ public class NeuralNetwork {
                 System.out.print(String.format("%.2f ", curv.getValue(j)));
             }
             System.out.println("");
+*/
+    }
+
+    public void trainNetwork () throws IOException {
+        init();
+        for (int t = 0; t < iterativeNumber; t++) {
+            System.out.println("Time: " + (t));
+            Input in = x.getRandomInput();
+            states.setH(0, t, 0, in.getFirstInput());
+            states.setH(1, t, 0, in.getSecondInput());
+            double lij = in.getL();
+            forwardPropagation(t);
+            //printNetwork(t);
+            // Computing gradient
             c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
             double gdc = gDerivative(c);
             states.setDelta(0, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,

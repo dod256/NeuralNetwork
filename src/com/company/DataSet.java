@@ -1,21 +1,26 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import static com.company.Helper.mutate;
 
 public class DataSet {
 
     private int numberOfData;
-
     private int inputSize;
+
+    ArrayList<MyObject> x;
 
     ArrayList<Vector> xi;
     ArrayList<Vector> xj;
     ArrayList<Double> lij;
 
-    public DataSet(int numberOfData, int inputSize) {
+    public DataSet() {
+
+    }
+
+    void initRandomData (int numberOfData, int inputSize) {
         this.numberOfData = numberOfData;
         this.inputSize = inputSize;
         xi = new ArrayList<>();
@@ -47,12 +52,44 @@ public class DataSet {
         }
     }
 
+    void initFromFile () throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(new File("NeuralNetwork.env")));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        st.nextToken();
+        int numberOfTypes = Integer.parseInt(st.nextToken());
+        numberOfData = 0;
+        x = new ArrayList<>();
+        for (int f = 0; f < numberOfTypes; f++) {
+            br = new BufferedReader(new FileReader(new File("n" + f + ".txt")));
+            st = new StringTokenizer(br.readLine());
+            int numberOfLines = Integer.parseInt(st.nextToken());
+            inputSize = Integer.parseInt(st.nextToken());
+            numberOfData += numberOfLines;
+            for (int t = 0; t < numberOfLines; t++) {
+                st = new StringTokenizer(br.readLine());
+                ArrayList<Double> newVector = new ArrayList<>();
+                for (int i = 0; i < inputSize; i++) {
+                    newVector.add(Double.parseDouble(st.nextToken()));
+                }
+                x.add(new MyObject(new Vector(newVector), f));
+            }
+        }
+    }
+
     public int getNumberOfData() {
         return numberOfData;
     }
 
     public int getInputSize() {
         return inputSize;
+    }
+
+    public Input getRandomInput() {
+        Random rnd = new Random();
+        int n1 = Math.abs(rnd.nextInt()) % x.size();
+        int n2 = Math.abs(rnd.nextInt()) % x.size();
+        return new Input(x.get(n1).getDescription(), x.get(n2).getDescription(),
+                x.get(n1).getType() == x.get(n2).getType() ? 1 : -1);
     }
 
     public Vector getXi (int t) {
