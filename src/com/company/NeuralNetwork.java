@@ -233,16 +233,23 @@ public class NeuralNetwork {
     public void trainNetwork () throws IOException {
         init();
         for (int t = 0; t < iterativeNumber; t++) {
-            System.out.println("Time: " + (t));
+            if ("DEBUG".equals(LOG_LEVEL)) {
+                System.out.println("Time: " + (t));
+            }
             Input in = x.getRandomInput();
             states.setH(0, t, 0, in.getFirstInput());
             states.setH(1, t, 0, in.getSecondInput());
             double lij = in.getL();
+
             forwardPropagation(t);
-            //printNetwork(t);
+
             // Computing gradient
+            if ("DEBUG".equals(LOG_LEVEL)) {
+                System.out.println(lij + " " + MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
+            }
             c = 1 - lij * (tau - MyMath.squaredEuclideanDistance(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1)));
             double gdc = gDerivative(c);
+
             states.setDelta(0, t, numberOfLayers - 1, MyMath.multiplyElementWiseVV(MyMath.multiplyDV(gdc * lij,
                             MyMath.subtractionVV(states.getH(0, t, numberOfLayers - 1), states.getH(1, t, numberOfLayers - 1))),
                             MyMath.applyTanhDerivative(states.getZ(0, t, numberOfLayers - 1))));

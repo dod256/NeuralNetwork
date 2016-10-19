@@ -61,7 +61,7 @@ public class Main implements Runnable{
         NeuralNetwork net = new NeuralNetwork();
         Scanner in = new Scanner(System.in);
         //String s = in.nextLine();
-        String s = "test";
+        String s = "create";
         if ("create".equals(s)) {
             createNet(net);
         } else {
